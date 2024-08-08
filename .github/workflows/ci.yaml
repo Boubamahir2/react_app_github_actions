@@ -35,7 +35,7 @@ jobs:
         run: npm install
 
       - name: Run ESLint for code analysis
-        run: npx eslint . --ext .js,.jsx,.ts,.tsx
+        run: npx eslint . 
 
       - name: Run Jest tests
         run: npm test
