@@ -1,4 +1,4 @@
-FROM node:alpine as build
+FROM node
 
 WORKDIR /app
 # Copy package.json and lock file from the app folder
@@ -8,7 +8,6 @@ COPY package*.json ./
 RUN npm install
 
 # Stage 2: Create the production image
-FROM node:alpine 
 
 COPY . .
 
