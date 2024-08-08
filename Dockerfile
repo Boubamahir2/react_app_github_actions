@@ -13,7 +13,7 @@ FROM node:alpine
 
 WORKDIR /app
 
-COPY --from=build /app/build .
+COPY ./frontend .
 
 EXPOSE 3000
 
