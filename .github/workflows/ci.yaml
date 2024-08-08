@@ -4,14 +4,15 @@ on:
   push:
     branches:
       - main
-  paths-ignore:
-    - 'helm/**'
-    - 'k8s/**'
-    - 'README.md'
+    paths-ignore:
+      - 'helm/**'
+      - 'k8s/**'
+      - 'README.md'
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v3  # Optimized checkout action version
       - name: Use Node.js 16
@@ -29,6 +30,7 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v3  # Optimized checkout action version
       - name: Use Node.js 16

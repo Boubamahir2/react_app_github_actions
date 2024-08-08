@@ -1,0 +1,22 @@
+# This is a sample deployment manifest file for a simple web application.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: react-app-github_actions
+  labels:
+    app: react-app-github_actions
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: react-app-github_actions
+  template:
+    metadata:
+      labels:
+        app: react-app-github_actions
+    spec:
+      containers:
+      - name: react-app-github_actions
+        image: boubamahir/react-app-github_actions:{{ .Values.image.tag }}
+        ports:
+        - containerPort: 8080
