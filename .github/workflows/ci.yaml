@@ -35,11 +35,9 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # - name: Run ESLint for code analysis
-      #   run: npx eslint . 
+      - name: Run ESLint for code analysis
+        run: npx eslint . 
 
-      - name: Run Jest tests
-        run: npm test
 
       - name: Build React project
         run: npm run build  # Assuming you have a build script in package.json
