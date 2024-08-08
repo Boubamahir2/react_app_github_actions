@@ -2,7 +2,7 @@ FROM node:alpine as build
 
 WORKDIR /app
 # Copy package.json and lock file from the app folder
-COPY ./app/package*.json ./
+COPY ./frontend/package*.json ./
 
 # Install dependencies
 RUN npm install
