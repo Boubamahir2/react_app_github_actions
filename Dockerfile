@@ -2,7 +2,7 @@ FROM node:alpine as build
 
 WORKDIR /app
 # Copy package.json and lock file from the app folder
-COPY ./frontend/package*.json ./
+COPY package*.json ./
 
 # Install dependencies
 RUN npm install
@@ -13,7 +13,7 @@ FROM node:alpine
 
 WORKDIR /app
 
-COPY ./frontend .
+COPY --from=build /app/build .
 
 EXPOSE 3000
 
