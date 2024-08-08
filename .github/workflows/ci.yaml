@@ -42,9 +42,9 @@ jobs:
         run: npm install
 
       - name: Run React tests
-        run: npm test  # Assuming you have a test script in package.json
+        run: npx jest
+        # run: npm test  # Assuming you have a test script in package.json
         # Or use Jest's default command:
-        # run: npx jest
 
   push:
     runs-on: ubuntu-latest
