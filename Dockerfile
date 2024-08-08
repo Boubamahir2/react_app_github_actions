@@ -10,10 +10,9 @@ RUN npm install
 # Stage 2: Create the production image
 FROM node:alpine 
 
+COPY . .
 
-WORKDIR /app
-
-COPY --from=build /app/build .
+RUN npm run build
 
 EXPOSE 3000
 
