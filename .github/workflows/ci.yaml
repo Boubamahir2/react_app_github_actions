@@ -35,8 +35,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # - name: Run ESLint for code analysis
-      #   run: npx eslint . 
+      - name: Run ESLint for code analysis
+        run: npx eslint . 
 
 
       - name: Build React project
