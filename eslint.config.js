@@ -16,7 +16,7 @@ export default {
     {
       files: ['*.ts', '*.tsx'],
       rules: {
-        // TypeScript-specific rules
+        // TypeScript-specific rules my rules
       },
     },
   ],
