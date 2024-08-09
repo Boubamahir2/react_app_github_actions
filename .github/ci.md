@@ -1,48 +1,75 @@
+
+## Continuous Integration (CI)
+Continuous Integration (CI) is the practice of automating the integration of code changes into a shared repository. CI helps to catch bugs early in the development process and ensures that the code is always in a deployable state.
+
+We will use GitHub Actions to implement CI for the Go web application. GitHub Actions is a feature of GitHub that allows you to automate workflows, such as building, testing, and deploying code.
+
+The GitHub Actions workflow will run the following steps:
+- Checkout the code from the repository
+- Build the Docker image
+- Run the Docker container
+- Run tests
+
+### steps in setting github actions
+- create a folder .github/workfows
+- create a file ci.yaml
+- go to github , then settings 
+- got actions , then got secrets and variables 
+- create github TOKEN for secret.TOKEN
+- create DOCKERHUB_USERNAME and DOCKERHUB_TOKEN variables
+- got to docker hub , then Account settings-> click personal access token and generate new token, copy and paste it into DOCKERHUB_TOKEN field  
+- you can visit github market place for pipeline syntanx
+
+## paste the following code to your ci.yaml file in .github/workfows
+```
 name: React CI/CD
 
 on:
   push:
     branches:
       - main
-  paths-ignore:
-    - 'helm/**'
-    - 'k8s/**'
-    - 'README.md'
+    paths-ignore:
+      - 'helm/**'
+      - 'k8s/**'
+      - 'README.md'
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30 
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x]
+
     steps:
       - uses: actions/checkout@v3  # Optimized checkout action version
-      - name: Use Node.js 16
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
-          node-version: 16.x  # Modern, well-supported Node.js version
+          node-version: ${{ matrix.node-version }} # Modern, well-supported Node.js version
+      #  caching step just before the npm install
+      - name: Cache Node.js modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Install dependencies
         run: npm install
+
+      - name: Run ESLint for code analysis
+        run: npx eslint . 
+        #npx eslint . --fix 
+        #Automatically fixes issues like missing semicolons, spacing, and formatting that can be corrected automatically based on your ESLint configuration.
+
 
       - name: Build React project
         run: npm run build  # Assuming you have a build script in package.json
         # Or use Create React App's built-in build command:
         # run: npm run build
 
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3  # Optimized checkout action version
-      - name: Use Node.js 16
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16.x  # Modern, well-supported Node.js version
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run React tests
-        run: npm test  # Assuming you have a test script in package.json
-        # Or use Jest's default command:
-        # run: npx jest
 
   push:
     runs-on: ubuntu-latest
@@ -68,7 +95,7 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/go-web-app:${{github.run_id}}
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/react-app-github-actions:${{github.run_id}}
 
   update-newtag-in-helm-chart:
     runs-on: ubuntu-latest
@@ -83,57 +110,66 @@ jobs:
 
     - name: Update tag in Helm chart
       run: |
-        sed -i 's/tag: .*/tag: "${{github.run_id}}"/' helm/go-web-app-chart/values.yaml
+        sed -i 's/tag: .*/tag: "${{github.run_id}}"/' helm/react-app-chart/values.yaml
 
     - name: Commit and push changes
       run: |
         git config --global user.email "amamahir1@gmail.com"
         git config --global user.name "Boubamahir2"
-        git add helm/go-web-app-chart/values.yaml
+        git add helm/react-app-chart/values.yaml
         git commit -m "Update tag in Helm chart"
         git push
 
 
-
-
-
-
-
+```
 
 
 
 ## Breakdown of the React CI/CD Workflow:
-This workflow defines a series of automated tasks that run when you push code to your GitHub repository. Here's a breakdown of each section:
+This workflow defines a multi-stage pipeline for building, testing, and deploying a React application. Here's a breakdown of each section:
 
-1. Trigger:
+1. Name:
+`name: React CI/CD:` This describes the overall purpose of the workflow.
 
-on: push: This section defines when the workflow should run. In this case, it triggers whenever there's a push to the main branch.
-2. Paths to Ignore:
+2. Trigger (on):
 
-paths-ignore: This section specifies files or directories that changes in these locations won't trigger the workflow. This helps avoid unnecessary builds if changes are only made to documentation (README.md) or Kubernetes configurations (k8s/**).
+`on: push:` The workflow runs whenever there's a push to the repository.
+`branches: main:` It specifically runs for pushes to the `main` branch.
+`paths-ignore:` This excludes specific files and folders from triggering the workflow, such as Helm chart files, Kubernetes configurations, and the README file. This ensures the workflow focuses on code changes relevant to the React application.
 3. Jobs:
 
-The workflow defines three jobs: build, test, and push. These jobs run in parallel (unless specified otherwise) on Ubuntu virtual machines.
+### build: This job handles building the React application.
 
-build:
+`runs-on: ubuntu-latest:` Specifies that this job runs on a virtual machine with the latest Ubuntu operating system.
+`timeout-minutes: 30:` Sets a 30-minute timeout limit for the job.
+`strategy: matrix:` Defines a matrix for testing with different Node.js versions.
+`node-version: [16.x, 18.x]:` This tests the build with both Node.js 16.x and 18.x versions.
+`steps:` These are the individual actions performed within the job:
+`uses: actions/checkout@v3:` Checks out the code from the repository.
+`uses: actions/setup-node@v3:` Sets up the specified Node.js version (node-version) in the job runner environment.
+`uses: actions/cache@v3:` Caches the node_modules directory based on the operating system, Node.js version, and the hash of the package-lock.json file. This optimizes build times by reusing previously downloaded dependencies.
+`run: npm install:` Installs all dependencies listed in the package.json file.
+`run: npx eslint .:` Runs ESLint for code analysis.
+(Commented out) # npx eslint . --fix: Optionally, this would automatically fix correctable code style issues.
+`run: npm run build:` Builds the React application (assuming a build script in package.json). Alternatively, it could use Create React App's built-in build command (npm run build).
+`push:` This job deploys the built application to DockerHub.
 
-### Checks out the code from your repository.
-Sets up Node.js version 16.
-Installs project dependencies using npm install.
-Runs the build script defined in your package.json (assuming npm run build). This creates the production-ready version of your React application.
-test:
+`runs-on:` ubuntu-latest: Similar to the build job.
+`needs: build:` Specifies that this job waits for the build job to complete successfully before proceeding.
+`steps:` Actions performed within this job:
+`uses: actions/checkout@v4:` Checks out the code from the repository.
+`uses: docker/setup-buildx-action@v1:` Sets up Docker Buildx for building container images efficiently.
+`uses: docker/login-action@v3:` Logs in to DockerHub using secrets stored in the repository (DOCKERHUB_USERNAME and DOCKERHUB_TOKEN).
+`uses: docker/build-push-action@v6:` Builds and pushes the container image to DockerHub.
+`context: .:` Uses the current directory as the build context.
+`file:` ./Dockerfile: Specifies the Dockerfile used for building the image.
+`push: true:` Enables pushing the image to DockerHub.
+`tags: ${{ secrets.DOCKERHUB_USERNAME }}/react-app-github-actions:${{github.run_id}}: `Defines the image tag. It includes the username, the application name, and the unique workflow run ID.
+update-newtag-in-helm-chart: This job updates the Helm chart with the new Docker image tag.
 
-### Checks out the code from your repository.
-Sets up Node.js version 16.
-Installs project dependencies using npm install.
-Runs the test script defined in your package.json (assuming npm test). This executes tests to ensure your application functions correctly.
-push (Disabled due to security concerns):
-
-### Requires the build job to complete successfully (needs: build). This ensures the application is built before attempting to push it.
-Checks out the code from your repository.
-Sets up Docker Buildx (a tool for building Docker images).
-Logs in to DockerHub using secrets stored in your repository (DOCKERHUB_USERNAME and DOCKERHUB_TOKEN).
-Builds and pushes the Docker image of your application to DockerHub with a tag containing the current workflow run ID (${{github.run_id}}).
-4. Disabled Job: update-newtag-in-helm-chart
-
-This job was originally intended to update the tag in your Helm chart's values.yaml file with the same run ID used for the Docker image tag. However, it's disabled due to security risks. Directly committing changes through GitHub Actions is not recommended as it bypasses code reviews and can lead to unintended consequences.
+`runs-on: ubuntu-latest:` Similar to previous jobs.
+`needs: push:` This job also requires the successful completion of the push job.
+`steps: Actions performed within this job:`
+`uses: actions/checkout@v4:` Checks out the code from the repository, using a separate access token (TOKEN).
+`run: |: Defines a multi-line shell script:`
+sed -i 's/tag: .*/tag: "${{github.run_id}}"/' helm/react-app-chart/values.yaml: Uses the sed command to replace the existing tag value in

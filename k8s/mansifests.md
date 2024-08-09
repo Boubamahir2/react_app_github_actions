@@ -1,3 +1,23 @@
+## Install Kubectl
+```
+sudo snap install kubectl --classic
+```
+
+
+## Install doctl (digitalocean cmd)
+```
+snap install doctl
+```
+## Authenticate with Digitalocean Token
+```
+doctl auth init
+```
+
+```
+export KUBECONFIG=./k8s-cluster-kubeconfig.yaml
+```
+
+
 ## create k8s cluster
 create folder called manifest then cd into manifest
 create deployement.yaml
