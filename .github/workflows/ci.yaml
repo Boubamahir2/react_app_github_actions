@@ -4,10 +4,10 @@ on:
   push:
     branches:
       - main
-    # paths-ignore:
-    #   - 'helm/**'
-    #   - 'k8s/**'
-    #   - 'README.md'
+    paths-ignore:
+      - 'helm/**'
+      - 'k8s/**'
+      - 'README.md'
 
 jobs:
   build:
@@ -37,6 +37,8 @@ jobs:
 
       - name: Run ESLint for code analysis
         run: npx eslint . 
+        #npx eslint . --fix 
+        #Automatically fixes issues like missing semicolons, spacing, and formatting that can be corrected automatically based on your ESLint configuration.
 
 
       - name: Build React project
