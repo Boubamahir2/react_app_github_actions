@@ -19,8 +19,8 @@
 
 
 
-## you can modify your Dockerfile to create a more lightweight image:
-# # Stage 1: Build the application
+# ## you can modify your Dockerfile to create a more lightweight image:
+# # # Stage 1: Build the application
 FROM node:18 AS build
 
 WORKDIR /app
