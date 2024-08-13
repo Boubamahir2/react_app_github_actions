@@ -8,7 +8,7 @@ image:
   repository: boubamahir/react-app-github-actions
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "10334620846"
+  tag: "10361358339"
 
 imagePullSecrets: []
 nameOverride: ""
