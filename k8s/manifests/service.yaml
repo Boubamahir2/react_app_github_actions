@@ -13,4 +13,4 @@ spec:
     protocol: TCP
   selector:
     app: react-app-github-actions
-  type: NodePort
+  type:  ClusterIP

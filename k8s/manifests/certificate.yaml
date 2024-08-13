@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: abumahir-com-tls
+  namespace: default
+spec:
+  secretName: abumahir-com-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: abumahir.com
+  dnsNames:
+  - abumahir.com
